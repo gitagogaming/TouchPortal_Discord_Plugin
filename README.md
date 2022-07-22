@@ -18,7 +18,7 @@
     - [Discord Push To Talk Keys](#discord-push-to-talk-keys)
   - [States](#states-1)
 - [Sample Page](#sample-page)
-- [Cleanup pre-v4.0.0 config](#cleanup-pre-v400-config)
+- [Build](#build)
 - [Dependencies](#dependencies)
 - [Versioning](#versioning)
 - [Authors](#authors)
@@ -214,13 +214,23 @@ v4.2.2
 <br>
 Has a sample button for all actions, and states to display info
 
-# Cleanup pre-v4.0.0 config
-1) After importing v4.0.0 plugin
-2) On Windows
-   1) Go to %APPDATA%\TouchPortal\plugins
-3) On Mac
-   1) Go to /Users/&lt;Your User Name&gt;/Documents/TouchPortal/plugins
-4) Delete the config folder (this was only used by this plugin)
+# Build
+Windows (requires 7zip to be installed)
+```
+#Discord.exe
+npm install
+npm run build-win
+
+#DiscordPTB.exe
+npm run build-win-ptb
+
+#DiscordCanary.exe
+npm run build-win-c
+
+#DiscordDEVELOPMENT.exe
+npm run build-win-dev
+```
+
 
 # Dependencies
  - [discord-rpc](https://www.npmjs.com/package/discord-rpc)
