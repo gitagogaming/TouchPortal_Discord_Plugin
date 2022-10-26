@@ -165,15 +165,10 @@ TPClient.on("Info", (data) => {
   TPClient.choiceUpdate(pttKeyStateId,Object.keys(discordKeyMap.keyboard.keyMap));
   TPClient.stateUpdate('discord_running','Unknown');
   TPClient.stateUpdate("discord_connected","Disconnected");
-  if( platform != 'darwin' && pluginSettings['Skip Process Watcher'].toLowerCase() == 'no' ){
-      logIt('INFO',`Starting process watcher for ${app_monitor[platform]}`);
-      procWatcher.watch(app_monitor[platform]);
-  }
-
-
+  
 });
 
-TPClient.on("Settings", (data) => {
+TPClient.on("Settings", async (data) => {
   logIt("DEBUG","Settings: New Settings from Touch-Portal ");
   data.forEach( (setting) => {
     let key = Object.keys(setting)[0];
@@ -181,11 +176,26 @@ TPClient.on("Settings", (data) => {
 
     logIt("DEBUG","Settings: Setting received for |"+key+"|");
   });
+  
   if( platform == 'darwin' || pluginSettings['Skip Process Watcher'].toLowerCase() == 'yes') {
     TPClient.stateUpdate('discord_running','Unknown');
     procWatcher.stopWatch();
     doLogin();
+    return;
   }
+
+  if (isEmpty(pluginSettings["Discord Client Id"]) || isEmpty(pluginSettings["Discord Client Secret"]) ) {
+    open(`https://discord.com/developers/applications`);
+
+    await waitForClientId(30 * 60 * 1000); // wait for 30 minutes
+  }
+
+  if( platform != 'darwin' && pluginSettings['Skip Process Watcher'].toLowerCase() == 'no' && 
+  !discordRunning ){
+    logIt('INFO',`Starting process watcher for ${app_monitor[platform]}`);
+    procWatcher.watch(app_monitor[platform]);
+  }
+
 });
 
 TPClient.on("Update", (curVersion, newVersion) => {
@@ -534,12 +544,6 @@ async function doLogin() {
     DiscordClient.removeAllListeners();
     DiscordClient.destroy();
     DiscordClient = null;
-  }
-
-  if (isEmpty(pluginSettings["Discord Client Id"]) || isEmpty(pluginSettings["Discord Client Secret"]) ) {
-    open(`https://discord.com/developers/applications`);
-
-    await waitForClientId(30 * 60 * 1000); // wait for 30 minutes
   }
 
   // Start Login process
