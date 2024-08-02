@@ -66,18 +66,13 @@ const build = async(platform, options ) => {
     fs.rmSync(`./base/${platform}`, { recursive : true})
 }
 
-const cleanInstallers = () => {
-  const installersDir = './Installers/';
-  if (fs.existsSync(installersDir)) {
+const cleanInstallers  = () => {
     try {
-      fs.rmSync(installersDir, { recursive: true });
-      fs.mkdirSync(installersDir);
-    } catch (err) {
-      console.error(err);
-    }
-  } else {
-    fs.mkdirSync(installersDir);
-  }
+      fs.rmSync('./Installers/', { recursive : true})
+      fs.mkdirSync('./Installers/')
+      } catch (err) {
+        console.error(err);
+      }
 }
 
 const executeBuilds= async () => {
