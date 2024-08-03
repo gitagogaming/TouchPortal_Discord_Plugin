@@ -14,6 +14,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+
+      - name: Clone discord-rpc repository
+        run: git clone https://github.com/spdermn02/RPC.git discord-rpc
+        
       - name: Cache Node.js modules
         uses: actions/cache@v3
         with:
