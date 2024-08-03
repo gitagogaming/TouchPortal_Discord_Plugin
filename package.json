@@ -20,9 +20,6 @@
     "scripts": [
       "src/**/*.js",
       "src/*.js"
-    ],
-    "assets": [
-      "discord-rpc/**/*"
     ]
   },
   "dependencies": {
