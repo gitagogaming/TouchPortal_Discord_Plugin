@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "@types/markdown-it": "^14.1.2",
-    "discord-rpc": "file:./discord-rpc",
     "find-process": "^1.4.7",
     "out-url": "^1.2.2",
     "pkg": "^5.8.1",
