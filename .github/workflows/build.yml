@@ -24,7 +24,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - run: npm ci --loglevel verbose
-      - run: npm run pkg-win
+      - run: npm run pkg-all
       
       - name: Upload artifacts to release
         uses: svenstaro/upload-release-action@v2
