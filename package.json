@@ -19,7 +19,8 @@
   "pkg": {
     "scripts": [
       "src/**/*.js",
-      "src/*.js"
+      "src/*.js",
+      "discord-rpc/**/*"
     ]
   },
   "dependencies": {
