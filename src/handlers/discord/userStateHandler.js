@@ -1,4 +1,3 @@
-const path = require("path");
 const RPC = require(path.resolve(__dirname, '../../discord-rpc/src/index.js'));
 const {DG} = require("../../discord_config.js");
 const TPClient = require("../../core/TPClient.js");

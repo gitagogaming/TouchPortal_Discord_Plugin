@@ -1,6 +1,5 @@
 // Discord Connector
 
-const path = require("path");
 const RPC = require(path.resolve(__dirname, '../../discord-rpc/src/index.js'));
 const {open} = require("out-url");
 const {DG} = require("../discord_config.js");
