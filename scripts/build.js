@@ -1,11 +1,34 @@
 const AdmZip = require("adm-zip");
-const path  = require("path");
+const path = require("path");
 const fs = require("fs");
 const pkg = require("pkg");
-const packageJson = JSON.parse(fs.readFileSync("./package.json", "utf8"))
-const { exit } = require("process")
+const packageJson = JSON.parse(fs.readFileSync("./package.json", "utf8"));
+const { exit } = require("process");
+const { exec } = require("child_process");
+const util = require("util");
+const execPromise = util.promisify(exec);
+
+const downloadDiscordRPC = async () => {
+    const discordRPCPath = path.join(__dirname, 'discord-rpc');
+
+    // Check if discord-rpc folder exists
+    if (!fs.existsSync(discordRPCPath)) {
+        console.log("Downloading discord-rpc...");
+        
+        try {
+            // Clone the discord-rpc repo
+            await execPromise('git clone https://github.com/spdermn02/RPC.git discord-rpc');
+        } catch (error) {
+            console.error("Error cloning discord-rpc repository:", error);
+            exit(1);
+        }
+    } else {
+        console.log("discord-rpc already exists.");
+    }
+};
 
 const build = async(platform, options ) => {
+    await downloadDiscordRPC();
     if( fs.existsSync(`./base/${platform}`) ) {
       fs.rmdirSync(`./base/${platform}`, { recursive : true})
     }
