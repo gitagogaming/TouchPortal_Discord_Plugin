@@ -6,6 +6,14 @@ const packageJson = JSON.parse(fs.readFileSync("./package.json", "utf8"))
 const { exit } = require("process")
 
 const build = async(platform, options ) => {
+
+  console.log("Checking discord-rpc directory...");
+  if (fs.existsSync('./discord-rpc')) {
+    console.log("discord-rpc exists");
+  } else {
+    console.error("discord-rpc does not exist");
+  }
+
     if( fs.existsSync(`./base/${platform}`) ) {
       fs.rmdirSync(`./base/${platform}`, { recursive : true})
     }
