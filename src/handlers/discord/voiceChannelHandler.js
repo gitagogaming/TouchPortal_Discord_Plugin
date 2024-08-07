@@ -10,7 +10,9 @@ class VoiceChannelHandler {
 
 
   voiceChannel = async (data, userStateHandler) => {
-    logIt("DEBUG", "Voice Channel join", JSON.stringify(data));
+    logIt("DEBUG", "Voice Channel join", data);
+    console.log("ChannelID", data.channel_id);
+    console.log("GUILD ID", data.guild_id);
   
     //  await DiscordClient.subscribe("MESSAGE_CREATE", { channel_id: "1125087354969915464"}).catch((err) => {logIt("ERROR",err)});
     await userStateHandler.clearUserStates();
@@ -28,41 +30,43 @@ class VoiceChannelHandler {
       this.DG.voiceChannelInfo.voice_channel_name = "Personal";
       this.DG.voiceChannelInfo.voice_channel_server_id = "Personal";
       this.DG.voiceChannelInfo.voice_channel_server_name = "Personal";
-  
+      
+      console.log("We are subscribing.. to something")
       // Subscribe to voice channel events
       await this.subscribeToEvents(data.channel_id);
     } else {
       // Lookup Voice Channel Name
-      if (!this.DG.channels[data.guild_id] || !this.DG.channels[data.guild_id].voice) {
+      // if (!this.DG.channels[data.guild_id] || !this.DG.channels[data.guild_id].voice) {
   
   
-        /// This should be referring to voicestateHandler... but its not.. so its literally doin nothing right now..
-        try {
-          // if user changes channels while plugin is booting, it may error/crash without this..
-          getGuildChannels(data.guild_id).then(() => {
-            if (this.DG.channels[data.guild_id] && this.DG.channels[data.guild_id].voice) {
-              this.DG.voiceChannelInfo.voice_channel_name = this.DG.channels[data.guild_id].voice.names[data.channel_id];
-            }
-          });
-        } catch (error) {
-          logIt("ERROR", "Error getting Guild Channels", error);
-        }
+      //   /// This should be referring to voicestateHandler... but its not.. so its literally doin nothing right now..
+      //   try {
+      //     // if user changes channels while plugin is booting, it may error/crash without this..
+      //     getGuildChannels(data.guild_id).then(() => {
+      //       if (this.DG.channels[data.guild_id] && this.DG.channels[data.guild_id].voice) {
+      //         this.DG.voiceChannelInfo.voice_channel_name = this.DG.channels[data.guild_id].voice.names[data.channel_id];
+      //       }
+      //     });
+      //   } catch (error) {
+      //     logIt("ERROR", "Error getting Guild Channels", error);
+      //   }
   
-      } else {
-        this.DG.voiceChannelInfo.voice_channel_name = this.DG.channels[data.guild_id].voice.names[data.channel_id];
-      }
+      // } else {
+      //   this.DG.voiceChannelInfo.voice_channel_name = this.DG.channels[data.guild_id].voice.names[data.channel_id];
+      // }
   
-      this.DG.voiceChannelInfo.voice_channel_id = data.channel_id;
-      this.DG.voiceChannelInfo.voice_channel_server_id = data.guild_id;
+      // this.DG.voiceChannelInfo.voice_channel_id = data.channel_id;
+      // this.DG.voiceChannelInfo.voice_channel_server_id = data.guild_id;
   
-      try {
-        // was getting times where the guilds.idx was not available on a fresh boot
-        this.DG.voiceChannelInfo.voice_channel_server_name = this.DG.guilds.idx[data.guild_id];
-      } catch (error) {
-        // Call getGuilds function to initialize guilds in case it's not available
-        this.DG.guilds = await getGuilds();
-        this.DG.voiceChannelInfo.voice_channel_server_name = this.DG.guilds.idx[data.guild_id];
-      }
+      // try {
+      //   // was getting times where the guilds.idx was not available on a fresh boot
+      //   this.DG.voiceChannelInfo.voice_channel_server_name = this.DG.guilds.idx[data.guild_id];
+      // } catch (error) {
+      //   // Call getGuilds function to initialize guilds in case it's not available
+      //   console.log("Error getting guilds.idx, calling getGuilds", error);
+      //   // this.DG.guilds = await getGuilds();
+      //   // this.DG.voiceChannelInfo.voice_channel_server_name = this.DG.guilds.idx[data.guild_id];
+      // }
   
       logIt(
         "DEBUG",
@@ -88,7 +92,7 @@ class VoiceChannelHandler {
     if (this.DG.voiceChannelInfo.voice_channel_id !== "<None>") {
       let ids = [];
       let avatarUrl;
-      const channel = await this.DG.Client.getChannel(this.DG.voiceChannelInfo.voice_channel_id);
+      const channel = await this.DG.Client.user?.fetchChannel(this.DG.voiceChannelInfo.voice_channel_id);
   
       await Promise.all(
         channel.voice_states.map(async (vs) => {

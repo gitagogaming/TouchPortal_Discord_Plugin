@@ -2,12 +2,15 @@
 
 const {open} = require("out-url");
 const {logIt, isEmpty} = require("../utils/helpers.js");
+const { Client } = require("@xhayper/discord-rpc");
+
 
 class DiscordConnector {
   constructor(TPClient, DG, RPC, userStateHandler, notificationHandler, voiceStateHandler) {
     this.TPClient = TPClient;
     this.DG = DG;
-    this.RPC = RPC;
+    // this.RPC = RPC;
+    this.Client = Client
     this.userStateHandler = userStateHandler;
     this.notificationHandler = notificationHandler;
     this.voiceStateHandler = voiceStateHandler;
@@ -16,7 +19,10 @@ class DiscordConnector {
 
   connectToDiscord = () => {
     try {
-      this.DG.Client = new this.RPC.Client({transport: "ipc"});
+      this.DG.Client = new this.Client({
+        clientId: this.DG.pluginSettings["Discord Client Id"],
+        clientSecret: this.DG.pluginSettings["Discord Client Secret"]
+      });
 
       /// how do we initiate this outside of this class... hmm
       // const voiceStateHandler = new VoiceStateHandler(this, this.TPClient, this.userStateHandler, this.notificationHandler);
@@ -30,8 +36,8 @@ class DiscordConnector {
 
   discordLogin = () => {
     this.DG.Client.login({
-      clientId: this.DG.pluginSettings["Discord Client Id"],
-      clientSecret: this.DG.pluginSettings["Discord Client Secret"],
+      // clientId: this.DG.pluginSettings["Discord Client Id"],
+      // clientSecret: this.DG.pluginSettings["Discord Client Secret"],
       accessToken: this.DG.accessToken,
       scopes: this.DG.scopes,
       redirectUri: this.DG.redirectUri,

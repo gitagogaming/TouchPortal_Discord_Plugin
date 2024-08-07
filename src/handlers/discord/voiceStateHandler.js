@@ -51,18 +51,18 @@ class VoiceStateHandler {
       await this.DG.Client.subscribe("VIDEO_STATE_UPDATE").catch((err) => {
         logIt("ERROR", err);
       });
-      await this.DG.Client.subscribe("SCREENSHARE_STATE_UPDATE").catch((err) => {
-        logIt("ERROR", err);
-      });
-      await this.DG.Client.subscribe("NOTIFICATION_CREATE").catch((err) => {
-        logIt("ERROR", err);
-      });
+      // await this.DG.Client.subscribe("SCREENSHARE_STATE_UPDATE").catch((err) => {
+      //   logIt("ERROR", err);
+      // });
+      // await this.DG.Client.subscribe("NOTIFICATION_CREATE").catch((err) => {
+      //   logIt("ERROR", err);
+      // });
 
-      await this.DG.Client.subscribe("CURRENT_USER_UPDATE").catch((err) => {
-        logIt("ERROR", err);
-      });
+      // await this.DG.Client.subscribe("CURRENT_USER_UPDATE").catch((err) => {
+      //   logIt("ERROR", err);
+      // });
       
-
+      console.log("About to fetch guilds and sounds");
       await this.getGuilds();
       await this.getSoundboardSounds();
     }); 
@@ -394,7 +394,7 @@ class VoiceStateHandler {
   };
 
   getGuild = async (data) => {
-    let guild = await this.DG.Client.getGuild(data.id);
+    let guild = await this.DG.Client.user?.fetchGuild(data.id);
     await this.assignGuildIndex(guild, 1);
 
     this.TPClient.choiceUpdate("discordServerList", this.DG.guilds.array);
@@ -402,7 +402,7 @@ class VoiceStateHandler {
 
   getGuildChannels = async (guildId) => {
     logIt("DEBUG", "getGuildChannels for guildId", guildId);
-    let channels = await this.DG.Client.getChannels(guildId);
+    let channels = await this.DG.Client.user?.fetchChannels(guildId);
     if (!channels) {
       logIt("ERROR", "No channel data available for guildId", guildId);
       return;
@@ -411,7 +411,7 @@ class VoiceStateHandler {
   };
 
   getChannel = async (data) => {
-    let channel = await this.DG.Client.getChannel(data.id);
+    let channel = await this.DG.Client.user?.fetchChannel(data.id);
     this.assignChannelIndex(channel.guild_id, channel);
   };
 
@@ -426,10 +426,10 @@ class VoiceStateHandler {
   };
 
   getGuilds = async () => {
-    let data = await this.DG.Client.getGuilds();
-    console.log("Fetched Guilds");
-
-    if (!data || !data.guilds) {
+    console.log("Get Guilds mmk")
+    let data = await this.DG.Client.user?.fetchGuilds();
+    console.log("This is the guild data", data);
+    if (!data) {
       logIt("ERROR", "guild data not available");
       return;
     }
@@ -441,13 +441,13 @@ class VoiceStateHandler {
 
     // Switched this up because of the .forEach not honoring the await process,
     // but native if does
-    for (let i = 0; i < data.guilds.length; i++) {
-      await this.assignGuildIndex(data.guilds[i], i);
+    for (let i = 0; i < data.length; i++) {
+      await this.assignGuildIndex(data[i], i);
     }
 
     this.TPClient.choiceUpdate("discordServerList", this.DG.guilds.array);
 
-    const voiceChannelData = await this.DG.Client.getSelectedVoiceChannel();
+    const voiceChannelData = await this.DG.Client.user?.getSelectedVoiceChannel();
     if (voiceChannelData != null) {
       voiceChannelData.channel_id = voiceChannelData.id;
       this.voiceChannelHandler.voiceChannel(voiceChannelData, this.userStateHandler);
@@ -455,6 +455,7 @@ class VoiceStateHandler {
   };
 
   assignGuildIndex = async (guild, counter) => {
+    console.log("Assigning Guild Index", guild.name);
     this.DG.guilds.array.push(guild.name);
     this.DG.guilds.idx[guild.name] = guild.id;
     this.DG.guilds.idx[guild.id] = guild.name;
@@ -545,7 +546,7 @@ class VoiceStateHandler {
   };
 
   getSoundboardSounds = async () => {
-    let sounds = await this.DG.Client.getSoundboardSounds();
+    let sounds = await this.DG.Client.user?.getSoundboardSounds();
     if (sounds != null) {
       // Initialize soundboard structure
       this.DG.soundBoard = {
@@ -560,7 +561,8 @@ class VoiceStateHandler {
           idx: {}
         }
       };
-
+      // console.log("This is the soundboards sounds", sounds);
+      
       // Process each sound
       for (const sound of sounds) {
         let emojiName = sound.emoji_name ? sound.emoji_name + " - " : "";
