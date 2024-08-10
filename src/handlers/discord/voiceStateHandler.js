@@ -62,6 +62,9 @@ class VoiceStateHandler {
         logIt("ERROR", err);
       });
       
+      // how to maybe get thread create events? 
+      // https://github.com/Wumpus-Central/discrapper-canary/blob/75f0797775371f774081fa60b661b55afe880e76/chunks/218315.js#L36
+      
 
       await this.getGuilds();
       await this.getSoundboardSounds();
@@ -204,6 +207,47 @@ class VoiceStateHandler {
     }
   }
 
+
+  handleDeviceChange(type, data) {
+    if (data.hasOwnProperty(type)) {
+      console.log(`Default ${type} device has changed.`);
+      
+      const devicesArray = Array.isArray(data[type].available_devices) 
+        ? data[type].available_devices
+        : Object.values(data[type].available_devices);
+        
+      if (devicesArray.length > 0 && devicesArray.some(device => device.id && device.name)) {
+        // This is when we startup and get a full array of devices
+        logIt("DEBUG", `Available ${type} devices:`, devicesArray);
+    
+        this.DG.voiceSettings[`${type}Devices`] = devicesArray;
+        this.DG.voiceSettings[`${type}DeviceNames`] = devicesArray.map(device => device.name);
+        this.DG.voiceSettings[`${type}DeviceVolume`] = data[type].volume;
+        this.DG.voiceSettings[`${type}DeviceId`] = data[type].device_id;
+    
+        const matchedDevice = this.DG.voiceSettings[`${type}Devices`].find(device => device.id === this.DG.voiceSettings[`${type}DeviceId`]);
+    
+        if (matchedDevice) {
+          this.TPClient.stateUpdate(`discord_${type}Device`, matchedDevice.name);
+          logIt("DEBUG", `${type.charAt(0).toUpperCase() + type.slice(1)} Device:`, matchedDevice.name);
+        } else {
+          logIt("ERROR", `No ${type} device matched the ID.`);
+        }
+      } else {
+        // This is when we are already started and the array is empty
+        this.DG.voiceSettings[`${type}DeviceId`] = data[type].device_id;
+        this.DG.voiceSettings[`${type}DeviceVolume`] = data[type].volume;
+    
+        const matchedDevice = this.DG.voiceSettings[`${type}Devices`].find(device => device.id === this.DG.voiceSettings[`${type}DeviceId`]);
+        if (matchedDevice) {
+          this.TPClient.stateUpdate(`discord_${type}Device`, matchedDevice.name);
+        }
+        logIt("INFO", `Using ${type} device ID:`, this.DG.voiceSettings[`${type}DeviceId`]);
+      }
+    } else {
+      logIt("INFO", `No ${type} device data found.`);
+    }
+  }
   voiceSettings = (newData) => {
     logIt("DEBUG", "voiceSettings", JSON.stringify(newData));
     const data = diff(this.DG.voiceSettings.prevVoiceActivityData, newData);
@@ -215,46 +259,14 @@ class VoiceStateHandler {
     const connectors = [];
 
     if (data.hasOwnProperty('input')) {
-      // updating the input devices and names as they may have changed
-
-      // Making sure the data is valid..
-      if (Array.isArray(data.input.available_devices) && data.input.available_devices.some(device => device.id && device.name)) {
-        // Process the input devices
-        this.DG.voiceSettings.inputDevices = data.input.available_devices;
-        this.DG.voiceSettings.inputDeviceNames = Object.keys(this.DG.voiceSettings.inputDevices).map(key => this.DG.voiceSettings.inputDevices[key].name);
-
-        this.DG.voiceSettings.inputDeviceVolume = data.input.volume;
-        this.DG.voiceSettings.inputDeviceId = data.input.device_id;
-        
-        // Matching the Default Device to Name
-        let matchedDevice = this.DG.voiceSettings.inputDevices.find(device => device.id === this.DG.voiceSettings.inputDeviceId);
-        // this.TPClient.stateUpdate("discord_inputDevice", String(matchedDevice.name));
-        states.push({id: "discord_inputDevice", value: String(matchedDevice.name)});
-        logIt("DEBUG", "Input Device: ", String(matchedDevice.name));
-      }
-    } else {
-      logIt("INFO", "No valid input devices found.");
+      this.handleDeviceChange('input', data);
     }
-    
 
-    if (data.hasOwnProperty('output')) {
-      if (Array.isArray(data.output.available_devices) && data.output.available_devices.some(device => device.id && device.name)) {
+    if (data.hasOwnProperty('output')) {      
+      // Check if `available_devices` is an object and convert it to an array
+      this.handleDeviceChange('output', data);
 
-        this.DG.voiceSettings.outputDevices = data.output.available_devices;
-        this.DG.voiceSettings.outputDeviceNames = Object.keys(this.DG.voiceSettings.outputDevices).map(key => this.DG.voiceSettings.outputDevices[key].name);
-
-        this.DG.voiceSettings.outputDeviceVolume = data.output.volume;
-        this.DG.voiceSettings.outputDeviceId = data.output.device_id;
-
-        // Matching the Default Device to Name
-        let matchedDevice = this.DG.voiceSettings.outputDevices.find(device => device.id === this.DG.voiceSettings.outputDeviceId);
-        states.push({id: "discord_outputDevice", value: String(matchedDevice.name)});
-        logIt("DEBUG", "Output Device: ", String(matchedDevice.name));
-      }
-      } else {
-        logIt("INFO", "No valid input devices found.");
-      }
-
+    }
     if (data.hasOwnProperty("mute")) {
       if (data.mute) {
         this.DG.voiceSettings.muteState = 1;
@@ -268,7 +280,7 @@ class VoiceStateHandler {
     if (data.hasOwnProperty("deaf")) {
       if (data.deaf) {
         this.DG.voiceSettings.deafState = 1;
-        // this.DG.voiceSettings.muteState = 1; // deaf is deaf.. why would we turn off mute? i understand if they are deaf they are mute also but thats up to the user to decide??
+        this.DG.voiceSettings.muteState = 1;
       } else {
         this.DG.voiceSettings.deafState = 0;
       }
