@@ -248,6 +248,7 @@ class VoiceStateHandler {
       logIt("INFO", `No ${type} device data found.`);
     }
   }
+
   voiceSettings = (newData) => {
     logIt("DEBUG", "voiceSettings", JSON.stringify(newData));
     const data = diff(this.DG.voiceSettings.prevVoiceActivityData, newData);
@@ -261,11 +262,8 @@ class VoiceStateHandler {
     if (data.hasOwnProperty('input')) {
       this.handleDeviceChange('input', data);
     }
-
     if (data.hasOwnProperty('output')) {      
-      // Check if `available_devices` is an object and convert it to an array
       this.handleDeviceChange('output', data);
-
     }
     if (data.hasOwnProperty("mute")) {
       if (data.mute) {
@@ -296,10 +294,7 @@ class VoiceStateHandler {
     ) {
       this.DG.voiceChannelInfo.voice_volume = convertVolumeToPercentage(data.input.volume);
       states.push({id: "discord_voice_volume", value: this.DG.voiceChannelInfo.voice_volume});
-      connectors.push({
-        id: "discord_voice_volume_connector",
-        value: this.DG.voiceChannelInfo.voice_volume,
-      });
+      connectors.push({ id: "discord_voice_volume_connector", value: this.DG.voiceChannelInfo.voice_volume});
     }
     if (
       data.hasOwnProperty("output") &&
@@ -309,10 +304,7 @@ class VoiceStateHandler {
       this.DG.voiceChannelInfo.speaker_volume = convertVolumeToPercentage(data.output.volume);
       this.DG.voiceChannelInfo.speaker_volume_connector = Math.round(convertVolumeToPercentage(data.output.volume) / 2);
       states.push({id: "discord_speaker_volume", value: this.DG.voiceChannelInfo.speaker_volume});
-      connectors.push({
-        id: "discord_speaker_volume_connector",
-        value: this.DG.voiceChannelInfo.speaker_volume_connector,
-      });
+      connectors.push({ id: "discord_speaker_volume_connector", value: this.DG.voiceChannelInfo.speaker_volume_connector,});
     }
     if (data.hasOwnProperty("mode") && data.mode.hasOwnProperty("type") && data.mode.type != "") {
       this.DG.voiceSettings.voice_mode_type = data.mode.type;
@@ -323,24 +315,15 @@ class VoiceStateHandler {
       data.hasOwnProperty("automaticGainControl")
     ) {
       this.DG.voiceSettings.automatic_gain_control = data.automatic_gain_control || data.automaticGainControl ? 1 : 0;
-      states.push({
-        id: "discord_automatic_gain_control",
-        value: this.DG.voiceSettings.automatic_gain_control ? "On" : "Off",
-      });
+      states.push({ id: "discord_automatic_gain_control", value: this.DG.voiceSettings.automatic_gain_control ? "On" : "Off"});
     }
     if (data.hasOwnProperty("noise_suppression") || data.hasOwnProperty("noiseSuppression")) {
       this.DG.voiceSettings.noise_suppression = data.noise_suppression || data.noiseSuppression ? 1 : 0;
-      states.push({
-        id: "discord_noise_suppression",
-        value: this.DG.voiceSettings.noise_suppression ? "On" : "Off",
-      });
+      states.push({ id: "discord_noise_suppression", value: this.DG.voiceSettings.noise_suppression ? "On" : "Off"});
     }
     if (data.hasOwnProperty("echo_cancellation") || data.hasOwnProperty("echoCancellation")) {
       this.DG.voiceSettings.echo_cancellation = data.echo_cancellation || data.echoCancellation ? 1 : 0;
-      states.push({
-        id: "discord_echo_cancellation",
-        value: this.DG.voiceSettings.echo_cancellation ? "On" : "Off",
-      });
+      states.push({id: "discord_echo_cancellation", value: this.DG.voiceSettings.echo_cancellation ? "On" : "Off" });
     }
     if (data.hasOwnProperty("silence_warning") || data.hasOwnProperty("silenceWarning")) {
       this.DG.voiceSettings.silence_warning = data.silence_warning || data.silenceWarning ? 1 : 0;
@@ -351,10 +334,7 @@ class VoiceStateHandler {
     }
     if (data.hasOwnProperty("qos") || data.hasOwnProperty("qos")) {
       this.DG.voiceSettings.qos_priority = data.qos ? 1 : 0;
-      states.push({
-        id: "discord_qos_priority",
-        value: this.DG.voiceSettings.qos_priority ? "On" : "Off",
-      });
+      states.push({id: "discord_qos_priority",value: this.DG.voiceSettings.qos_priority ? "On" : "Off"});
     }
 
     if (states.length > 0) {
@@ -380,26 +360,14 @@ class VoiceStateHandler {
       this.DG.voiceChannelInfo.voice_channel_participants = "<None>";
     }
     let states = [
-      {
-        id: "discord_voice_channel_connected",
-        value: this.DG.voiceChannelInfo.voice_channel_connected,
-      },
+      {id: "discord_voice_channel_connected", value: this.DG.voiceChannelInfo.voice_channel_connected},
       {id: "discord_voice_average_ping", value: this.DG.voiceChannelInfo.voice_average_ping},
       {id: "discord_voice_hostname", value: this.DG.voiceChannelInfo.voice_hostname},
       {id: "discord_voice_channel_name", value: this.DG.voiceChannelInfo.voice_channel_name},
       {id: "discord_voice_channel_id", value: this.DG.voiceChannelInfo.voice_channel_id},
-      {
-        id: "discord_voice_channel_server_name",
-        value: this.DG.voiceChannelInfo.voice_channel_server_name,
-      },
-      {
-        id: "discord_voice_channel_server_id",
-        value: this.DG.voiceChannelInfo.voice_channel_server_id,
-      },
-      {
-        id: "discord_voice_channel_participants",
-        value: this.DG.voiceChannelInfo.voice_channel_participants,
-      },
+      { id: "discord_voice_channel_server_name", value: this.DG.voiceChannelInfo.voice_channel_server_name},
+      { id: "discord_voice_channel_server_id", value: this.DG.voiceChannelInfo.voice_channel_server_id},
+      { id: "discord_voice_channel_participants", value: this.DG.voiceChannelInfo.voice_channel_participants},
     ];
     this.TPClient.stateUpdateMany(states);
   };
