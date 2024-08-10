@@ -210,7 +210,7 @@ class VoiceStateHandler {
 
   handleDeviceChange(type, data) {
     if (data.hasOwnProperty(type)) {
-      console.log(`Default ${type} device has changed.`);
+      logIt("INFO", `Default ${type} device has changed.`);
       
       const devicesArray = Array.isArray(data[type].available_devices) 
         ? data[type].available_devices
